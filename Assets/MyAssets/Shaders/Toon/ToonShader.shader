@@ -11,6 +11,8 @@ Shader "Custom/ToonShader" {
     _Surface("__surface", Float) = 0.0
     [KeywordEnum(Off, Front, Back)] _Cull("Cull Mode", int) = 2
     _LightThreshold("RampThreshold", Range(0, 1)) = 0.5
+    _OutlineWidth("OutlineWidth", Float) = 0.02
+    _OutlineCameraBais("OutlineCameraBais", Float) = 5.0
   }
   SubShader {
     Tags {"RenderPipeline" = "UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" "DisableBatching"="False"}
@@ -36,6 +38,8 @@ Shader "Custom/ToonShader" {
       float _Surface;
       int _AlphaClip;
       float _LightThreshold;
+      float _OutlineWidth;
+      float _OutlineCameraBais;
     CBUFFER_END
     ENDHLSL
     Pass {
@@ -66,6 +70,7 @@ Shader "Custom/ToonShader" {
       Name "Outline"
       Tags {"LightMode" = "ToonOutlinePass"}
       HLSLPROGRAM
+      #pragma geometry geo
       // Following part is copied from LitForwardPass.hlsl 
       // Universal Pipeline keywords
       #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN

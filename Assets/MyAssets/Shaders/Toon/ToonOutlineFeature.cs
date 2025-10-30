@@ -31,7 +31,7 @@ public class ToonOutlineFeature : ScriptableRendererFeature {
       var rendererListHandle = renderGraph.CreateRendererList(desc);
       var textureDesc = resourceData.activeColorTexture.GetDescriptor(renderGraph);
       var texture = renderGraph.CreateTexture(textureDesc);
-      renderGraph.AddBlitPass(resourceData.activeColorTexture, texture, textureDesc.scale, new Vector2(0.0f, 0.0f));
+      renderGraph.AddBlitPass(resourceData.activeColorTexture, texture, new Vector2(1.0f, 1.0f), new Vector2(0.0f, 0.0f));
       using (var builder = renderGraph.AddRasterRenderPass(passName,
           out PassData passData)) {
         passData.rendererListHandle = rendererListHandle;
@@ -39,11 +39,11 @@ public class ToonOutlineFeature : ScriptableRendererFeature {
         builder.UseRendererList(rendererListHandle);
         builder.SetRenderAttachment(texture, 0);
         builder.SetRenderFunc(static (PassData data, RasterGraphContext context) => {
-          // context.cmd.ClearRenderTarget(false, true, Color.white);
+          // context.cmd.ClearRenderTarget(true, true, Color.white);
           context.cmd.DrawRendererList(data.rendererListHandle);
         });
       }
-      renderGraph.AddBlitPass(texture, resourceData.activeColorTexture, textureDesc.scale, new Vector2(0.0f, 0.0f));
+      renderGraph.AddBlitPass(texture, resourceData.activeColorTexture, new Vector2(1.0f, 1.0f), new Vector2(0.0f, 0.0f));
     }
   }
   public ToonOutlinePass outlinePass;

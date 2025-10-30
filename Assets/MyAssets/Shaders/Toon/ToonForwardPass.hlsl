@@ -54,7 +54,7 @@ Varyings vert (Attributes input) {
   output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
   output.uv = input.texcoord.xy;
   output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-  output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+  output.normalWS = normalize(TransformObjectToWorldNormal(input.normalOS));
   // Following part is copied from LitForwardPass.hlsl
   VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
   OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
