@@ -9,10 +9,11 @@ Shader "Custom/ToonShader" {
     [ToggleUI] _AlphaClip("Enable Alpha Clip", int) = 1
     _Cutoff("Alpha Cutoff", Range(0, 1)) = 0.5
     _Surface("__surface", Float) = 0.0
-    [KeywordEnum(Off, Front, Back)] _Cull("Cull Mode", int) = 2
+    [KeywordEnum(Off, Front, Back)] _Cull("Cull Mode", Float) = 2.0
     _LightThreshold("RampThreshold", Range(0, 1)) = 0.5
-    _OutlineWidth("OutlineWidth", Float) = 0.02
-    _OutlineCameraBais("OutlineCameraBais", Float) = 5.0
+    [HideInInspector] _DepthTex("_DepthTex", 2D) = "white" {}
+    [HideInInspector] _EdgeThresholdColor("_EdgeThresholdColor", Range(0, 1)) = 0.5
+    [HideInInspector] _EdgeThresholdDepth("_EdgeThresholdDepth", Range(0, 1)) = 0.001
   }
   SubShader {
     Tags {"RenderPipeline" = "UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" "DisableBatching"="False"}
@@ -22,8 +23,8 @@ Shader "Custom/ToonShader" {
     LOD 200
     HLSLINCLUDE
     #pragma target 3.0
-    #pragma vertex vert
-    #pragma fragment frag
+    #pragma vertex Vert
+    #pragma fragment Frag
     #pragma multi_compile_instancing
     #pragma multi_compile _CULL_OFF _CULL_FRONT _CULL_BACK
     #pragma shader_feature _Toon
@@ -38,8 +39,11 @@ Shader "Custom/ToonShader" {
       float _Surface;
       int _AlphaClip;
       float _LightThreshold;
-      float _OutlineWidth;
-      float _OutlineCameraBais;
+      float _EdgeThresholdColor;
+      float _EdgeThresholdDepth;
+      float4 _MainTex_TexelSize;
+      float4 _DepthTex_TexelSize;
+      float _Cull;
     CBUFFER_END
     ENDHLSL
     Pass {
@@ -67,28 +71,12 @@ Shader "Custom/ToonShader" {
       ENDHLSL
     }
     Pass {
-      Name "Outline"
-      Tags {"LightMode" = "ToonOutlinePass"}
+      Name "OutlineForward"
+      Tags {"LightMode" = "ToonOutlineForwardPass"}
       HLSLPROGRAM
-      #pragma geometry geo
-      // Following part is copied from LitForwardPass.hlsl 
-      // Universal Pipeline keywords
-      #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-      #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
-      #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
-      #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-      #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
-      #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
-      #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-      #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
-      #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
-      #pragma multi_compile_fragment _ _LIGHT_COOKIES
-      #pragma multi_compile _ _LIGHT_LAYERS
-      #pragma multi_compile _ _FORWARD_PLUS
-      #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
-      #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-      // --------------------------------------------------------------------
-      #include "./ToonOutlinePass.hlsl"
+      #pragma require geometry
+      #pragma geometry Geo
+      #include "./ToonOutlineForwardPass.hlsl"
       ENDHLSL
     }
     Pass {
@@ -112,6 +100,15 @@ Shader "Custom/ToonShader" {
       HLSLPROGRAM
       #define REQUIRES_NORMAL
       #include "./ToonDepthPass.hlsl"
+      ENDHLSL
+    }
+    Pass {
+      Name "OutlinePost"
+      Tags {"LightMode" = "ToonOutlinePostPass"}
+      ZTest Off
+      ZWrite Off
+      HLSLPROGRAM
+      #include "./ToonOutlinePostPass.hlsl"
       ENDHLSL
     }
   }

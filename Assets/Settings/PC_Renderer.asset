@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: ToonOutlineFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  outlineType: 0
+  edgeThresholdColor: 0.5
+  edgeThresholdDepth: 0.01
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,6 +82,9 @@ MonoBehaviour:
   m_Name: ToonOutlineFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  outlineType: 0
+  edgeThresholdColor: 0.5
+  edgeThresholdDepth: 0.001
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -49,7 +49,7 @@ void InitializeBakedGIData(Varyings input, inout InputData inputData) {
 #endif
 }
 // --------------------------------------------------------------------------
-Varyings vert (Attributes input) {
+Varyings Vert (Attributes input) {
   Varyings output;
   output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
   output.uv = input.texcoord.xy;
@@ -65,7 +65,7 @@ Varyings vert (Attributes input) {
   // ------------------------------------------------------------------------
   return output;
 }
-half4 frag (Varyings input) : SV_Target0 {
+half4 Frag (Varyings input) : SV_Target0 {
   half4 color = tex2D(_MainTex, input.uv) * _BaseColor;
   clip(color.a - _AlphaClip * _Cutoff);
   float3 lightDir = normalize(_MainLightPosition.xyz);

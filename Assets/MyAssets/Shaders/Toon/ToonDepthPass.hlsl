@@ -14,7 +14,7 @@ struct Varyings {
 #endif
 };
 
-Varyings vert(Attributes input) {
+Varyings Vert(Attributes input) {
   Varyings output;
   output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
   output.uv = input.texcoord;
@@ -24,13 +24,13 @@ Varyings vert(Attributes input) {
   return output;
 }
 #ifdef REQUIRES_NORMAL
-float4 frag(Varyings input) : SV_TARGET {
+float4 Frag(Varyings input) : SV_TARGET {
   float alpha = tex2D(_MainTex, input.uv).a;
   clip(alpha - _AlphaClip * _Cutoff);
   return float4(normalize(input.normalWS), 0.0f);
 }
 #else
-void frag(Varyings input) {
+void Frag(Varyings input) {
   float alpha = tex2D(_MainTex, input.uv).a;
   clip(alpha - _AlphaClip * _Cutoff);
   return;
